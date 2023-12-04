@@ -14,7 +14,7 @@ const Chatbot = () => {
   const [loading, setLoading] = useState(false)
   const [showSnackbar, setShowSnackbar] = useState(false)
   const [queryType, setQueryType] = useState('initial')
-  const [trigger, setTrigger] = useState(false)
+  const [disable, setDisable] = useState(false)
 
   console.log(queryType)
 
@@ -30,14 +30,6 @@ const Chatbot = () => {
   }, [])
 
   const getInternalResponse = async (query: string) => {
-    // if (queryType === 'initial') {
-    //   return {
-    //     type: 'received',
-    //     text: 'Hello, welcome to the travel planner bot!',
-    //     failed: false,
-    //     buttons: ['Travel Plan', 'Restaurant Info'],
-    //   }
-    // }
     if (queryType === 'Travel Plan') {
       setQueryType('12')
       return {
@@ -99,11 +91,6 @@ const Chatbot = () => {
   const handleClose = () => {
     setShowSnackbar(false)
   }
-  // const handleClose = (props: HandleCloseIF) => {
-  //   const { reason } = props
-  //   if (reason === 'clickaway') return
-  //   setShowSnackbar(false)
-  // }
 
   const handleSubmit = async (query: string) => {
     if (loading) return
@@ -148,17 +135,7 @@ const Chatbot = () => {
         internalRes = await getInternalResponse(query)
         receivedObj = internalRes
       }
-      // if (queryType !== '15' && queryType !== '22') {
-      //   internalRes = await getInternalResponse(query)
-      //   receivedObj = internalRes
-      // } else {
-      //   chatbotRes = await getChatbotApiResponse(query)
-      //   receivedObj = {
-      //     type: 'received',
-      //     text: chatbotRes.response,
-      //     failed: false,
-      //   }
-      // }
+
       if (query !== 'initial') {
         setChatList([...chatList, sentObj, receivedObj])
       } else {
@@ -179,15 +156,29 @@ const Chatbot = () => {
   const handleFabButton = (event: boolean) => {
     setShowChatBox(event)
     setShowSnackbar(false)
+    if (showChatBox) {
+      setChatList([])
+    } else {
+      setChatList([
+        {
+          type: 'received',
+          text: 'Hello, welcome to the travel planner bot!',
+          failed: false,
+          buttons: ['Travel Plan', 'Restaurant Info'],
+        },
+      ])
+      setDisable(false)
+    }
   }
   const clickHandler = (e: any) => {
+    if (disable) return
     setQueryType(e)
-    setTrigger(!trigger)
+    setDisable(!disable)
   }
 
   useEffect(() => {
-    if (trigger) handleSubmit(queryType)
-  }, [trigger])
+    if (disable) handleSubmit(queryType)
+  }, [disable])
 
   return (
     <MainContainer showChatBox={showChatBox}>
